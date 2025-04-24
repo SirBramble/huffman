@@ -273,77 +273,133 @@ void printCodes(struct MinHeapNode* root, int arr[],
     }
 }
 
+void fprintc_cstyle(FILE* f_target, char c)
+{
+    if(c == '\n') fprintf(f_target, "\\n");
+    else fprintf(f_target, "%c", c);
+}
+
 // Prints huffman codes from the root of Huffman Tree.
 // It uses arr[] to store codes
 void write_tree(struct MinHeapNode* root, int arr[],
-                int top, FILE* file)
+                int top, FILE* f_target_c, FILE* f_target_h)
 
 {
-  if(top == 0)
-  {
-    fprintf(file, "\t\tcase 0:\n");
-  }
-  else
-  {
-    fprintf(file, "\t\tcase %u:\n", ((unsigned int)root))>>16;
-  }
-  
+    if(top == 0)
+    {
+        fprintf(f_target_c, "\t\tcase E0:\n");
+    }
+    else if(!isLeaf(root))
+    {
+        fprintf(f_target_c, "\t\tcase E%u:\n", (unsigned long)root);
+        fprintf(f_target_h, "\tE%u,\n", (unsigned long)root);
+    }
+
   int switch_set = 0;
 
   if (root->left)
   {
     switch_set = 1;
-    fprintf(file, "\t\t\tif(input == 0)\n\t\t\t{\n\t\t\t\tputchar('0');\n\t\t\t\tstate = %u;\n\t\t\t\tbreak;\n\t\t\t\tsent_char = 0;\n\t\t\t}\n", ((unsigned int)root->left))>>16;
+    fprintf(f_target_c, "\t\t\tif(input == 0)");
+    fprintf(f_target_c, "\n\t\t\t{");
+    if(isLeaf(root->left))
+    {
+        fprintf(f_target_c, "\n\t\t\tstate = E0;");
+        fprintf(f_target_c, "\n\t\t\t\t*ch = '");
+        fprintc_cstyle(f_target_c, root->left->data);
+        fprintf(f_target_c, "';\n");
+        fprintf(f_target_c, "\n\t\t\tsent_char = 1;");
+    }
+    else
+    {
+        
+        //fprintf(f_target_c, "\n\t\t\t\tputchar('0');");
+        fprintf(f_target_c, "\n\t\t\t\tstate = E%u;", (unsigned long)root->left);
+        fprintf(f_target_c, "\n\t\t\t\tsent_char = 0;");
+    }
+    fprintf(f_target_c, "\n\t\t\t\tbreak;");
+    fprintf(f_target_c, "\n\t\t\t}\n");
   }
   if (root->right)
   {
     switch_set = 1;
-    fprintf(file, "\t\t\tif(input != 0)\n\t\t\t{\n\t\t\t\tputchar('1');\n\t\t\t\tstate = %u;\n\t\t\t\tbreak;\n\t\t\t\tsent_char = 0;\n\t\t\t}\n", ((unsigned int)root->right))>>16;
+    fprintf(f_target_c, "\t\t\tif(input != 0)");
+    fprintf(f_target_c, "\n\t\t\t{");
+    if(isLeaf(root->right))
+    {
+        fprintf(f_target_c, "\n\t\t\t\tstate = E0;");
+        fprintf(f_target_c, "\n\t\t\t\t*ch = '");
+        fprintc_cstyle(f_target_c, root->right->data);
+        fprintf(f_target_c, "';\n");
+        fprintf(f_target_c, "\t\t\t\tsent_char = 1;\n");
+    }
+    else
+    {
+        //fprintf(f_target_c, "\n\t\t\t\tputchar('1');");
+        fprintf(f_target_c, "\n\t\t\t\tstate = E%u;", (unsigned long)root->right);
+        fprintf(f_target_c, "\n\t\t\t\tsent_char = 0;");
+    }
+    fprintf(f_target_c, "\n\t\t\t\tbreak;");
+    fprintf(f_target_c, "\n\t\t\t}\n");
+    
   }
 
   // Assign 0 to left edge and recur
   if (root->left) {
-    //fprintf(file, "\tif(input == 0) state = %d;\n", (int)root->left);
+    //fprintf(f_target_c, "\tif(input == 0) state = %d;\n", (int)root->left);
     arr[top] = 0;
-    write_tree(root->left, arr, top + 1, file);
+    write_tree(root->left, arr, top + 1, f_target_c, f_target_h);
   }
 
   // Assign 1 to right edge and recur
   if (root->right) {
-    //fprintf(file, "\tif(input == 0) state = %d;\n", (int)root->right);
+    //fprintf(f_target_c, "\tif(input == 0) state = %d;\n", (int)root->right);
     arr[top] = 1;
-    write_tree(root->right, arr, top + 1, file);
+    write_tree(root->right, arr, top + 1, f_target_c, f_target_h);
   }
 
   // If this is a leaf node, then
   // it contains one of the input
   // characters, print the character
   // and its code from arr[]
+  
   if (isLeaf(root)) {
-    fprintf(file, "\t\t\tstate = 0;\n");
-    fprintf(file, "\t\t\t*ch = '%c';\n", root->data);
-    fprintf(file, "\t\t\tsent_char = 1;\n");
-    fprintf(file, "\t\t\tbreak;\n");
     printf("%c: ", root->data);
     printArr(arr, top);
   }
+  
 }
 
-void write_decoder(struct MinHeapNode* root, int arr[], int top, FILE* f_template, FILE* f_target)
+void write_decoder(struct MinHeapNode* root, int arr[], int top, FILE* f_template_c, FILE* f_target_c, FILE* f_template_h, FILE* f_target_h)
 {
   char c;
 
-  while((c = fgetc(f_template)) != EOF)
+  while((c = fgetc(f_template_c)) != EOF)
   {
     if(c == '?') break;
-    fprintf(f_target, "%c", c);
+    fprintf(f_target_c, "%c", c);
+  }
+
+  while((c = fgetc(f_template_h)) != EOF)
+  {
+    if(c == '?') break;
+    fprintf(f_target_h, "%c", c);
   }
   
 
-  write_tree(root, arr, top, f_target);
-  while((c = fgetc(f_template)) != EOF)
+  write_tree(root, arr, top, f_target_c, f_target_h);
+
+
+  while((c = fgetc(f_template_c)) != EOF)
   {
-    fprintf(f_target, "%c", c);
+    fprintf(f_target_c, "%c", c);
+  }
+
+  fseek(f_target_h, -2, SEEK_CUR);
+
+  while((c = fgetc(f_template_h)) != EOF)
+  {
+    fprintf(f_target_h, "%c", c);
   }
 }
 
@@ -414,14 +470,26 @@ void HuffmanCodes(char data[], int freq[], int size)
         return;
     }
 
-    FILE *f_target = fopen("../decoder/decoder.c", "w");
-    if (f_target == NULL) {
+    FILE *f_target_c = fopen("../decoder/lib/source/decoder.c", "w");
+    if (f_target_c == NULL) {
         perror("Error opening file");
         return;
     }
 
-    FILE *f_template = fopen("../decoder/decoder_template.c", "r");
-    if (f_template == NULL) {
+    FILE *f_target_h = fopen("../decoder/lib/include/decoder.h", "w");
+    if (f_target_h == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    FILE *f_template_c = fopen("../decoder/decoder_template.c", "r");
+    if (f_template_c == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    FILE *f_template_h = fopen("../decoder/decoder_template.h", "r");
+    if (f_template_h == NULL) {
         perror("Error opening file");
         return;
     }
@@ -430,7 +498,7 @@ void HuffmanCodes(char data[], int freq[], int size)
 
     //write_tree(root, arr, top, f_write);
 
-    write_decoder(root, arr, top, f_template, f_target);
+    write_decoder(root, arr, top, f_template_c, f_target_c, f_template_h, f_target_h);
 
     fill_huffman_encode(root, arr, top, huffman_encode);
 
@@ -444,7 +512,9 @@ void HuffmanCodes(char data[], int freq[], int size)
         printf("\n");
     }
 
-    fclose(f_template);
-    fclose(f_target);
+    fclose(f_template_c);
+    fclose(f_target_c);
+    fclose(f_template_h);
+    fclose(f_target_h);
     fclose(f_write);
 }

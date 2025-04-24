@@ -5,8 +5,8 @@
 
 #pragma "included encoded_template"
 
-#define SIZE_ENCODED =        
-#define SIZE_HUFFMAN =          
+#define SIZE_ENCODED 202        
+#define SIZE_HUFFMAN 1613          
 
 extern uint8_t encoded_text[SIZE_ENCODED];
 

@@ -89,7 +89,7 @@ int main() {
 
   rewind(f_vanilla);
 
-  FILE *f_encoded = fopen("encoded.h", "w+");
+  FILE *f_encoded = fopen("lib/include/encoded.h", "w+");
   if (f_encoded == NULL) {
       perror("Error opening file");
       return 1;
@@ -100,9 +100,20 @@ int main() {
       return 1;
   }
 
-  while ((ch = fgetc(f_encoded_template)) != EOF) {
+  FILE *f_encoded_c = fopen("lib/source/encoded.c", "w+");
+  if (f_encoded_c == NULL) {
+      perror("Error opening file");
+      return 1;
+  }
+  FILE *f_encoded_template_c = fopen("encoded_template.c", "r");
+  if (f_encoded_template_c == NULL) {
+      perror("Error opening file");
+      return 1;
+  }
+
+  while ((ch = fgetc(f_encoded_template_c)) != EOF) {
     if(ch == '?') break;
-    fprintf(f_encoded,"%c",ch);
+    fprintf(f_encoded_c,"%c",ch);
   }
 
   int index_byte = 0;
@@ -114,15 +125,23 @@ int main() {
   ch = fgetc(f_vanilla);
 
   while (ch != EOF) {
-    temp_byte += huffman_encode[ch].key[index_huffman] << index_byte;
-    if(index_byte < 8) index_byte++;
+    if(index_byte < 8)
+    {
+      temp_byte += huffman_encode[ch].key[index_huffman] << index_byte;
+      index_byte++;
+    }
     else
     {
-      fprintf(f_encoded,"\t%u,\n", temp_byte);
+      fprintf(f_encoded_c,"\t%u,\n", temp_byte);
       size_array++;
       index_byte = 0;
       temp_byte = 0;
+      temp_byte += huffman_encode[ch].key[index_huffman] << index_byte;
+      index_byte++;
     }
+
+    
+
     index_huffman++;
     size_huffmann++;
     if(index_huffman >= huffman_encode[ch].size)
@@ -134,29 +153,33 @@ int main() {
   
   if(index_byte > 0)
   {
-    fprintf(f_encoded,"\t%u,\n", temp_byte);
+    fprintf(f_encoded_c,"\t%u,\n", temp_byte);
     size_array++;
   }
 
-  fseek(f_encoded, -1, SEEK_CUR);
+  fseek(f_encoded_c, -1, SEEK_CUR);
 
-  while ((ch = fgetc(f_encoded_template)) != EOF) {
-    fprintf(f_encoded,"%c",ch);
+  while ((ch = fgetc(f_encoded_template_c)) != EOF) {
+    fprintf(f_encoded_c,"%c",ch);
   }
 
   rewind(f_encoded);
 
-  while ((ch = fgetc(f_encoded)) != EOF) {
+  while ((ch = fgetc(f_encoded_template)) != EOF) {
     if(ch == '=') break;
+    fprintf(f_encoded,"%c",ch);
   }
-  fseek(f_encoded, -1, SEEK_CUR);
   fprintf(f_encoded, "%u", size_array);
 
-  while ((ch = fgetc(f_encoded)) != EOF) {
+  while ((ch = fgetc(f_encoded_template)) != EOF) {
     if(ch == '=') break;
+    fprintf(f_encoded,"%c",ch);
   }
-  fseek(f_encoded, -1, SEEK_CUR);
   fprintf(f_encoded, "%u", size_huffmann);
+
+  while ((ch = fgetc(f_encoded_template)) != EOF) {
+    fprintf(f_encoded,"%c",ch);
+  }
 
   free(arr);
   free(freq);
