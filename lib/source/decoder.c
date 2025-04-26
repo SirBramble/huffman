@@ -11,7 +11,7 @@ int __attribute__ ((noinline)) get_hoffman_char(int input, char* ch)
 		case E0:
 			if(input == 0)
 			{
-				state = E507730480;
+				state = E2709232176;
 				sent_char = 0;
 				break;
 			}
@@ -23,7 +23,7 @@ int __attribute__ ((noinline)) get_hoffman_char(int input, char* ch)
 
 				break;
 			}
-		case E507730480:
+		case E2709232176:
 			if(input == 0)
 			{
 			state = E0;
@@ -34,14 +34,14 @@ int __attribute__ ((noinline)) get_hoffman_char(int input, char* ch)
 			}
 			if(input != 0)
 			{
-				state = E507730448;
+				state = E2709232144;
 				sent_char = 0;
 				break;
 			}
-		case E507730448:
+		case E2709232144:
 			if(input == 0)
 			{
-				state = E507730416;
+				state = E2709232112;
 				sent_char = 0;
 				break;
 			}
@@ -53,7 +53,7 @@ int __attribute__ ((noinline)) get_hoffman_char(int input, char* ch)
 
 				break;
 			}
-		case E507730416:
+		case E2709232112:
 			if(input == 0)
 			{
 			state = E0;

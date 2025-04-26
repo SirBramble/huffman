@@ -12,9 +12,9 @@ void print_logo_hoffman(uint32_t* handle, void (*uart_put_char_func)(uint32_t* h
 typedef enum
 {
   E0,
-	E507730480,
-	E507730448,
-	E507730416
+	E2709232176,
+	E2709232144,
+	E2709232112
 }state_hoffman_t;
 
 extern state_hoffman_t state;
