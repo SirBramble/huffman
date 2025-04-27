@@ -1,6 +1,8 @@
 #ifndef _huffman_h_
 #define _huffman_h_
 
+#include <config.h>
+
 // This constant can be avoided by explicitly
 // calculating height of Huffman Tree
 #define MAX_TREE_HT 100

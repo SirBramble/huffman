@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.v": "vhdl",
+    "encoded_text.h": "c"
+  }
+}

@@ -2,19 +2,21 @@
 #define _DECODER_TEMPLATE_H_
 
 #include <stdint.h>
-#include <encoded.h>
+#include <encoded_text.h>
 
 #pragma "included decoder_template"
 
+#define ENCODED_BIT_LIMIT 16
+
 int __attribute__ ((noinline)) get_hoffman_char(int input, char* ch);
-void print_logo_hoffman(uint32_t* handle, void (*uart_put_char_func)(uint32_t* handle, char c));
 
 typedef enum
 {
   E0,
-	E2709232176,
-	E2709232144,
-	E2709232112
+	E94617712097920,
+	E94617712097888,
+	E94617712097856,
+	E94617712097824
 }state_hoffman_t;
 
 extern state_hoffman_t state;

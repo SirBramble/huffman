@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include <huffman.h>
+#include <config.h>
 
 typedef struct
 {
@@ -40,7 +41,23 @@ void print_huffman(huffman_t* huffman)
   }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+
+  if(argc <= 1)
+  {
+    perror("Please provide the target text file as a argument!");
+    return 1;
+  }
+
+  if(argv[1] == NULL)
+  {
+    perror("Please provide the target text file as a argument!");
+    return 1;
+  }
+  else
+  {
+    printf("Parsing: %s", argv[0]);
+  }
 
   for(int i = 0; i < 256; i++)
   {
@@ -50,9 +67,9 @@ int main() {
 
   huffman_start = malloc(sizeof(huffman_t));
 
-  FILE *f_vanilla = fopen("vanilla.txt", "r");
+  FILE *f_vanilla = fopen(argv[1], "r");
   if (f_vanilla == NULL) {
-      perror("Error opening file");
+      perror("Error opening text file");
       return 1;
   }
 
@@ -89,23 +106,23 @@ int main() {
 
   rewind(f_vanilla);
 
-  FILE *f_encoded = fopen("lib/include/encoded.h", "w+");
+  FILE *f_encoded = fopen("../lib/include/encoded_text.h", "w+");
   if (f_encoded == NULL) {
       perror("Error opening file");
       return 1;
   }
-  FILE *f_encoded_template = fopen("encoded_template.h", "r");
+  FILE *f_encoded_template = fopen("template/encoded_template.h", "r");
   if (f_encoded_template == NULL) {
       perror("Error opening file");
       return 1;
   }
 
-  FILE *f_encoded_c = fopen("lib/source/encoded.c", "w+");
+  FILE *f_encoded_c = fopen("../lib/source/encoded_text.c", "w+");
   if (f_encoded_c == NULL) {
       perror("Error opening file");
       return 1;
   }
-  FILE *f_encoded_template_c = fopen("encoded_template.c", "r");
+  FILE *f_encoded_template_c = fopen("template/encoded_template.c", "r");
   if (f_encoded_template_c == NULL) {
       perror("Error opening file");
       return 1;
@@ -120,23 +137,31 @@ int main() {
   int index_huffman = 0;
   int size_array = 0;
   int size_huffmann = 0;
-  uint8_t temp_byte = 0;
+#if (ENCODE_UINT8 != 0)
+  uint8_t temp_storage = 0;
+#endif
+#if (ENCODE_UINT16 != 0)
+  uint16_t temp_storage = 0;
+#endif
+#if (ENCODE_UINT32 != 0)
+  uint32_t temp_storage = 0;
+#endif
 
   ch = fgetc(f_vanilla);
 
   while (ch != EOF) {
-    if(index_byte < 8)
+    if(index_byte < ENCODED_BIT_LIMIT)
     {
-      temp_byte += huffman_encode[ch].key[index_huffman] << index_byte;
+      temp_storage += (ENCODE_TYPE) huffman_encode[ch].key[index_huffman] << index_byte;
       index_byte++;
     }
     else
     {
-      fprintf(f_encoded_c,"\t%u,\n", temp_byte);
+      fprintf(f_encoded_c,"\t%u,\n", temp_storage);
       size_array++;
       index_byte = 0;
-      temp_byte = 0;
-      temp_byte += huffman_encode[ch].key[index_huffman] << index_byte;
+      temp_storage = 0;
+      temp_storage += huffman_encode[ch].key[index_huffman] << index_byte;
       index_byte++;
     }
 
@@ -153,7 +178,7 @@ int main() {
   
   if(index_byte > 0)
   {
-    fprintf(f_encoded_c,"\t%u,\n", temp_byte);
+    fprintf(f_encoded_c,"\t%u,\n", temp_storage);
     size_array++;
   }
 
@@ -164,6 +189,20 @@ int main() {
   }
 
   rewind(f_encoded);
+
+  while ((ch = fgetc(f_encoded_template)) != EOF) {
+    if(ch == '?') break;
+    fprintf(f_encoded,"%c",ch);
+  }
+#if (ENCODE_UINT8 != 0)
+  fprintf(f_encoded, "#define ENCODE_TYPE uint8_t");
+#endif
+#if (ENCODE_UINT16 != 0)
+  fprintf(f_encoded, "#define ENCODE_TYPE uint16_t");
+#endif
+#if (ENCODE_UINT32 != 0)
+  fprintf(f_encoded, "#define ENCODE_TYPE uint32_t");
+#endif
 
   while ((ch = fgetc(f_encoded_template)) != EOF) {
     if(ch == '=') break;

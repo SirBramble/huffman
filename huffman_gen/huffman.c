@@ -311,7 +311,7 @@ void printCodes(struct MinHeapNode* root, int arr[],
 }
 
 /**
- * @brief Helper function to print cirtain characters to file
+ * @brief Helper function to print special characters to file
  * 
  * @param f_target Target file to be written to
  * @param c Character to be written
@@ -319,6 +319,8 @@ void printCodes(struct MinHeapNode* root, int arr[],
 void fprintc_cstyle(FILE* f_target, char c)
 {
     if(c == '\n') fprintf(f_target, "\\n");
+    else if(c == '\'') fprintf(f_target, "\\'");
+    else if(c == '\\') fprintf(f_target, "\\\\");
     else fprintf(f_target, "%c", c);
 }
 
@@ -341,8 +343,8 @@ void write_tree(struct MinHeapNode* root, int arr[],
     }
     else if(!isLeaf(root))
     {
-        fprintf(f_target_c, "\t\tcase E%u:\n", (unsigned long)root);
-        fprintf(f_target_h, "\tE%u,\n", (unsigned long)root);
+        fprintf(f_target_c, "\t\tcase E%lu:\n", (unsigned long)root);
+        fprintf(f_target_h, "\tE%lu,\n", (unsigned long)root);
     }
 
   int switch_set = 0;
@@ -364,7 +366,7 @@ void write_tree(struct MinHeapNode* root, int arr[],
     {
         
         //fprintf(f_target_c, "\n\t\t\t\tputchar('0');");
-        fprintf(f_target_c, "\n\t\t\t\tstate = E%u;", (unsigned long)root->left);
+        fprintf(f_target_c, "\n\t\t\t\tstate = E%lu;", (unsigned long)root->left);
         fprintf(f_target_c, "\n\t\t\t\tsent_char = 0;");
     }
     fprintf(f_target_c, "\n\t\t\t\tbreak;");
@@ -386,7 +388,7 @@ void write_tree(struct MinHeapNode* root, int arr[],
     else
     {
         //fprintf(f_target_c, "\n\t\t\t\tputchar('1');");
-        fprintf(f_target_c, "\n\t\t\t\tstate = E%u;", (unsigned long)root->right);
+        fprintf(f_target_c, "\n\t\t\t\tstate = E%lu;", (unsigned long)root->right);
         fprintf(f_target_c, "\n\t\t\t\tsent_char = 0;");
     }
     fprintf(f_target_c, "\n\t\t\t\tbreak;");
@@ -437,6 +439,22 @@ void write_decoder(struct MinHeapNode* root, int arr[], int top, FILE* f_templat
     if(c == '?') break;
     fprintf(f_target_h, "%c", c);
   }
+
+#if (ENCODE_UINT8 != 0)
+  fprintf(f_target_h, "#define ENCODED_BIT_LIMIT 8");
+#endif
+#if (ENCODE_UINT16 != 0)
+  fprintf(f_target_h, "#define ENCODED_BIT_LIMIT 16");
+#endif
+#if (ENCODE_UINT32 != 0)
+  fprintf(f_target_h, "#define ENCODED_BIT_LIMIT 32");
+#endif
+
+  while((c = fgetc(f_template_h)) != EOF)
+    {
+      if(c == '?') break;
+      fprintf(f_target_h, "%c", c);
+    }
   
 
   write_tree(root, arr, top, f_target_c, f_target_h);
@@ -526,33 +544,27 @@ void HuffmanCodes(char data[], int freq[], int size)
     // the Huffman tree built above
     int arr[MAX_TREE_HT], top = 0;
 
-    FILE *f_write = fopen("test.txt", "w");
-    if (f_write == NULL) {
-        perror("Error opening file");
-        return;
-    }
-
-    FILE *f_target_c = fopen("../decoder/lib/source/decoder.c", "w");
+    FILE *f_target_c = fopen("../lib/source/huffman_decoder.c", "w");
     if (f_target_c == NULL) {
-        perror("Error opening file");
+        perror("Error opening huffman_decoder.c");
         return;
     }
 
-    FILE *f_target_h = fopen("../decoder/lib/include/decoder.h", "w");
+    FILE *f_target_h = fopen("../lib/include/huffman_decoder.h", "w");
     if (f_target_h == NULL) {
-        perror("Error opening file");
+        perror("Error opening huffman_decoder.h");
         return;
     }
 
-    FILE *f_template_c = fopen("../decoder/decoder_template.c", "r");
+    FILE *f_template_c = fopen("template/decoder_template.c", "r");
     if (f_template_c == NULL) {
-        perror("Error opening file");
+        perror("Error opening decoder_template.c");
         return;
     }
 
-    FILE *f_template_h = fopen("../decoder/decoder_template.h", "r");
+    FILE *f_template_h = fopen("template/decoder_template.h", "r");
     if (f_template_h == NULL) {
-        perror("Error opening file");
+        perror("Error opening decoder_template.h");
         return;
     }
 
@@ -574,5 +586,4 @@ void HuffmanCodes(char data[], int freq[], int size)
     fclose(f_target_c);
     fclose(f_template_h);
     fclose(f_target_h);
-    fclose(f_write);
 }
