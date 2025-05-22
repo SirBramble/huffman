@@ -1,8 +1,8 @@
-# Repository directory path
+# Repository directory path (can be overwritten by other makefile)
 HUFFMAN_HOME ?= $(CURDIR)
 
-# Path to File (relative to root/huffman_gen)
-TEXT_FILE ?= "$(HUFFMAN_HOME)/FGL-Ascii-Art-V2.txt"
+# Path to File
+TEXT_FILE ?= "$(HUFFMAN_HOME)/example_text/text.txt"
 
 # Array configuration
 # Valid options: ENCODE_UINT8, ENCODE_UINT16, ENCODE_UINT32

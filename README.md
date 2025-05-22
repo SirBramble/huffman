@@ -3,6 +3,10 @@ When working with text on microcontrollers or other embedded devices, storage us
 The `huffman_gen` takes a input file and generates a encoded version of the text, as well as a state machine decoder that can be included in a project.
 The `decoder` in `./decoder` is a example implementation.
 
+## Prerequisites
+- make
+- gcc
+
 ## How to use
 1. Edit the `TEXT_FILE` Variable in the `Makefile` to point to your desired text file.
 2. Run `make clean 2_decoder`. This will generate the files and run the `decoder` example.
