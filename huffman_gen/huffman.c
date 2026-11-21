@@ -375,7 +375,7 @@ void write_tree(struct MinHeapNode* root, int arr[],
   if (root->right)
   {
     switch_set = 1;
-    fprintf(f_target_c, "\t\t\tif(input != 0)");
+    fprintf(f_target_c, "\t\t\telse");
     fprintf(f_target_c, "\n\t\t\t{");
     if(isLeaf(root->right))
     {

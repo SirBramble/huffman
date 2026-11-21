@@ -8,11 +8,14 @@ TEXT_FILE ?= "$(HUFFMAN_HOME)/example_text/text.txt"
 # Valid options: ENCODE_UINT8, ENCODE_UINT16, ENCODE_UINT32
 TYPE_DEFINE ?= ENCODE_UINT16
 
+.PHONY: 1_huffman_gen huffman_gen_build 2_decoder decoder_build clean clean_huffman
+
 1_huffman_gen: huffman_gen_build
 	@cd $(HUFFMAN_HOME)/huffman_gen && chmod +x ./build/encoder
 	cd $(HUFFMAN_HOME)/huffman_gen && ./build/encoder $(TEXT_FILE)
 
 huffman_gen_build:
+	@mkdir -p "$(HUFFMAN_HOME)/huffman_gen/build" "$(HUFFMAN_HOME)/lib/include" "$(HUFFMAN_HOME)/lib/source"
 	gcc -D $(TYPE_DEFINE) $(HUFFMAN_HOME)/huffman_gen/main.c $(HUFFMAN_HOME)/huffman_gen/huffman.c -I $(HUFFMAN_HOME)/huffman_gen -o $(HUFFMAN_HOME)/huffman_gen/build/encoder
 
 2_decoder: decoder_build
@@ -20,6 +23,7 @@ huffman_gen_build:
 	cd $(HUFFMAN_HOME)/decoder && ./build/decoder
 
 decoder_build: 1_huffman_gen
+	@mkdir -p "$(HUFFMAN_HOME)/decoder/build" "$(HUFFMAN_HOME)/decoder/lib/include" "$(HUFFMAN_HOME)/decoder/lib/source"
 	@cp $(HUFFMAN_HOME)/lib/include/encoded_text.h $(HUFFMAN_HOME)/decoder/lib/include
 	@cp $(HUFFMAN_HOME)/lib/source/encoded_text.c $(HUFFMAN_HOME)/decoder/lib/source
 	@cp $(HUFFMAN_HOME)/lib/include/huffman_decoder.h $(HUFFMAN_HOME)/decoder/lib/include

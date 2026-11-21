@@ -5,8 +5,6 @@
 
 ?
 
-#pragma "included encoded_template"
-
 #define SIZE_ENCODED =        
 #define SIZE_HUFFMAN =          
 

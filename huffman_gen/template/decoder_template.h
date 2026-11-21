@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <encoded_text.h>
 
-#pragma "included decoder_template"
-
 ?
 
 int __attribute__ ((noinline)) get_hoffman_char(int input, char* ch);
